@@ -1,0 +1,24 @@
+# Runtime dependencies for GoMemForensics.
+# Kept in sync with the [project.dependencies] table in pyproject.toml.
+# Prefer `pip install -e .[dev]` for development; this file is provided
+# for environments that consume requirements.txt directly.
+
+click>=8.1,<9
+
+# Verified during Phase 0 to install and import successfully on the local
+# Python 3.14.3 environment (Windows x86-64). Actual Volatility 3 layer/
+# plugin integration is Phase 1 work; Phase 0 only probes availability.
+volatility3>=2.28.2
+
+# Used by the Phase 4 x86-64 ABI-aware backward call-site analyzer
+# (gomemforensics.go_runtime.backward_analysis). Verified installable as a
+# prebuilt win_amd64 wheel in Phase 0.
+capstone>=5.0.3,<6
+
+# Development / testing
+pytest>=8.3,<9
+
+# Test-only: tests/integration/test_go_runtime_function_fixture.py builds
+# a PE-section-aware MemoryReader to validate Go function recovery against
+# real compiled binary bytes at their real virtual addresses.
+pefile>=2024.8.26

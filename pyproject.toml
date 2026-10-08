@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gomemforensics"
+version = "0.14.0"
+description = "Automated forensic recovery and analysis of Go runtime artifacts from Windows and Linux memory images."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+authors = [
+    { name = "GoMemForensics Contributors" },
+]
+keywords = ["memory forensics", "golang", "malware analysis", "volatility3", "dfir"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+]
+
+# Compatibility of these two dependencies with the local Python 3.14.3
+# interpreter was explicitly verified during Phase 0 (see docs/validation):
+# volatility3 2.28.2 (Requires-Python >=3.8, pure Python wheel) and
+# capstone 5.0.9 (prebuilt win_amd64 wheel) both installed and imported
+# successfully. As of Phase 1, volatility3's context/automagic/plugin
+# construction APIs are used for real (see
+# docs/architecture/volatility3-integration.md); capstone remains
+# uncalled, reserved for the Phase 4 ABI-aware backward analyzer.
+dependencies = [
+    "click>=8.1,<9",
+    "volatility3>=2.28.2",
+    "capstone>=5.0.3,<6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9",
+    # Test-only: builds a PE-section-aware MemoryReader for
+    # tests/integration/test_go_runtime_function_fixture.py, which
+    # validates Go function recovery against real compiled binary bytes at
+    # their real virtual addresses (unlike pclntab's own relative offsets,
+    # moduledata/ftab pointers require real PE section-table translation).
+    # Already present transitively via volatility3, but declared
+    # explicitly here since a test must not depend on an undeclared
+    # transitive dependency that could disappear in a future volatility3
+    # release.
+    "pefile>=2024.8.26",
+]
+
+[project.scripts]
+gomemforensics = "gomemforensics.cli.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "memory_image: requires a real captured memory image fixture (see tests/conftest.py); automatically skipped when none is configured.",
+]
